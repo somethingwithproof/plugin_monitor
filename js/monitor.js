@@ -59,7 +59,7 @@ function timeStep() {
 	} else {
 		$('#timer').html(value);
 		// What is a second, well if you are an
-		// imperial storm tropper, it's just a little more than a second.
+		// imperial stormtrooper, it's just a little more than a second.
 		myTimer = setTimeout(timeStep, 1284);
 	}
 }
@@ -92,7 +92,7 @@ function applyFilter(action = '') {
 	} else {
 		strURL = 'monitor.php?header=false';
 
-		if (action >= '') {
+		if (action !== '') {
 			strURL += `&action=${action}`;
 		}
 
@@ -341,7 +341,7 @@ $(() => {
 	myTimer = setTimeout(timeStep, 1000);
 
 	$(globalThis).resize(() => {
-		$(document).tooltip('option', 'position', { my: '1eft:15 top', at: 'right center' });
+		$(document).tooltip('option', 'position', { my: 'left:15 top', at: 'right center' });
 	});
 
 	if ($('#mute').val() === 'true') {

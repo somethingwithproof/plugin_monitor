@@ -114,7 +114,7 @@ function renderWhereJoin(string &$sql_where, string &$sql_join): void
     }
 
     if (get_request_var('rfilter') != '') {
-        $awhere .= ($awhere == '' ? '' : ' AND ') . " h.description RLIKE '" . get_request_var('rfilter') . "'";
+        $awhere .= ($awhere == '' ? '' : ' AND ') . " h.description RLIKE '" . db_qstr(get_request_var('rfilter')) . "'";
     }
 
     if (get_request_var('grouping') == 'tree') {
@@ -230,6 +230,7 @@ function getHostsDownOrTriggeredByPermission(bool $prescan): array
                 'SELECT GROUP_CONCAT(DISTINCT host_id) AS hosts
 				FROM graph_tree_items AS gti
 				INNER JOIN host AS h
+				ON h.id = gti.host_id
 				WHERE host_id > 0
 				AND h.deleted = ""
 				AND graph_tree_id = ?',
@@ -263,7 +264,7 @@ function getHostsDownOrTriggeredByPermission(bool $prescan): array
         );
     }
 
-        $sql_where = "h.monitor = 'on'
+    $sql_where = "h.monitor = 'on'
 		AND h.disabled = ''
 		AND h.deleted = ''
 		AND ((h.status < " . $PreScanValue . ' AND (h.availability_method > 0 OR h.snmp_version > 0)) ' .
@@ -275,8 +276,8 @@ function getHostsDownOrTriggeredByPermission(bool $prescan): array
     if (cacti_sizeof($hosts)) {
         foreach ($hosts as $host) {
             $result[] = $host['id'];
-            sort($result);
         }
+        sort($result);
     }
 
     return $result;

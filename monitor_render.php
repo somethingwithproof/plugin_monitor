@@ -185,6 +185,7 @@ function renderSite(): string
             $suppressGroups = true;
         }
 
+        $host_ids = [];
         foreach ($hosts as $index => $host) {
             if (is_device_allowed($host['id'])) {
                 $host_ids[] = $host['id'];
@@ -318,6 +319,7 @@ function renderTemplate(): string
             $suppressGroups = true;
         }
 
+        $host_ids = [];
         foreach ($hosts as $index => $host) {
             if (is_device_allowed($host['id'])) {
                 $host_ids[] = $host['id'];
@@ -915,7 +917,8 @@ function renderHeaderList(int $total_rows = 0, int $rows = 0): string
         'hostname' => [
             'display' => __('Hostname', 'monitor'),
             'sort'    => 'ASC',
-            'align'   => 'left', 'tip' => __('Hostname of device', 'monitor')
+            'align'   => 'left',
+            'tip' => __('Hostname of device', 'monitor')
         ],
         'id' => [
             'display' => __('ID', 'monitor'),
@@ -1112,7 +1115,7 @@ function renderHostList(array $host): string
     }
 
     if ($host['availability_method'] > 0) {
-        $host_avg     =	__('%d ms', $host['cur_time'], 'monitor') . ' / ' . __('%d ms', $host['avg_time'], 'monitor');
+        $host_avg     =    __('%d ms', $host['cur_time'], 'monitor') . ' / ' . __('%d ms', $host['avg_time'], 'monitor');
     } else {
         $host_avg     = __('N/A', 'monitor');
     }
