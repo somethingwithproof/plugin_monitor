@@ -30,7 +30,7 @@ are any feature requests, we won't push them away.
 
 To install the Monitor plugin, simply copy the plugin_monitor directory to
 Cacti's plugins directory and rename it to simply 'monitor'. Once you have done
-this, goto Cacti's Plugin Management page, Install and Enable the webseer. Once
+this, goto Cacti's Plugin Management page, Install and Enable the monitor. Once
 this is complete, you can grant users permission to view the Monitor tab.
 
 It would be advisable to view Monitors email notification settings under
@@ -40,7 +40,7 @@ includes a Device filter to show Devices of differing criticalities.
 
 ## Bugs and Feature Enhancements
 
-Bug and feature enhancements for the webseer plugin are handled in GitHub. If
+Bug and feature enhancements for the monitor plugin are handled in GitHub. If
 you find a first search the Cacti forums for a solution before creating an issue
 in GitHub.
 
