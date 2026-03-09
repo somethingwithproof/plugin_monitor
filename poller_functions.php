@@ -414,7 +414,7 @@ function processRebootEmail(string $email, array $hosts): void {
 	$template_output = read_config_option('monitor_body');
 	$template_output = str_replace('<DETAILS>', $body, $template_output) . PHP_EOL;
 
-	if (strpos($template_output, '<DETAILS>') !== false) {
+	if (str_contains($template_output, '<DETAILS>')) {
 		$toutput = str_replace('<DETAILS>', $body_txt, $template_output) . PHP_EOL;
 	} else {
 		$toutput = $body_txt;
