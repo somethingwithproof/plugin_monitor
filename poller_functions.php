@@ -562,7 +562,7 @@ function appendThresholdSection(string &$body, string &$body_txt, array $host_id
 	if (cacti_sizeof($hosts)) {
 		foreach ($hosts as $host) {
 			$body .= '<tr>' . PHP_EOL;
-			$body .= '<td class="left"><a class="hyperLink" href="' . htmlspecialchars($config['url_path'] . 'host.php?action=edit&id=' . $host['id']) . '">' . $host['description'] . '</a></td>' . PHP_EOL;
+			$body .= '<td class="left"><a class="hyperLink" href="' . htmlspecialchars(read_config_option('base_url') . 'host.php?action=edit&id=' . $host['id']) . '">' . $host['description'] . '</a></td>' . PHP_EOL;
 			$body .= '<td class="left">' . $criticalities[$host['monitor_criticality']] . '</td>' . PHP_EOL;
 			$body .= '<td class="right">' . number_format_i18n($host[$threshold_field], 2) . ' ms</td>' . PHP_EOL;
 			$body .= '<td class="right">' . number_format_i18n($host['cur_time'], 2) . ' ms</td>' . PHP_EOL;
