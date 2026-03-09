@@ -317,8 +317,8 @@ function buildRebootDetails(array $hosts): array {
 
 		$last_host = $host;
 		$body .= '<tr>' .
-			'<td class="left">' . $host['description'] . '</td>' .
-			'<td class="left">' . $host['hostname'] . '</td>' .
+			'<td class="left">' . htmlspecialchars($host['description']) . '</td>' .
+			'<td class="left">' . htmlspecialchars($host['hostname']) . '</td>' .
 			'</tr>' . PHP_EOL;
 
 		$body_txt .=
@@ -413,7 +413,7 @@ function processRebootEmail(string $email, array $hosts): void {
 
 	$template_output = read_config_option('monitor_body');
 
-	if ($template_output === false || $template_output === null || $template_output === '') {
+	if ($template_output === false || trim($template_output) === '') {
 		$template_output = '<DETAILS>';
 	}
 
