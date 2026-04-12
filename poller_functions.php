@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare(strict_types = 1);
 
 /*
  +-------------------------------------------------------------------------+
@@ -318,8 +317,8 @@ function buildRebootDetails(array $hosts): array {
 
 		$last_host = $host;
 		$body .= '<tr>' .
-			'<td class="left">' . htmlspecialchars($host['description']) . '</td>' .
-			'<td class="left">' . htmlspecialchars($host['hostname']) . '</td>' .
+			'<td class="left">' . html_escape($host['description']) . '</td>' .
+			'<td class="left">' . html_escape($host['hostname']) . '</td>' .
 			'</tr>' . PHP_EOL;
 
 		$body_txt .=
@@ -413,23 +412,13 @@ function processRebootEmail(string $email, array $hosts): void {
 	$subject                        = buildRebootSubject($hosts, $last_host);
 
 	$template_output = read_config_option('monitor_body');
-
-	if ($template_output === false || trim($template_output) === '') {
-		$template_output = '<DETAILS>';
-	}
-
-	// The template uses <DETAILS> as a placeholder replaced by the host table.
-	// First pass substitutes HTML body; second pass substitutes plain-text body
-	// when the template contains a second <DETAILS> tag (e.g. dual-format templates).
 	$template_output = str_replace('<DETAILS>', $body, $template_output) . PHP_EOL;
 
-	if (str_contains($template_output, '<DETAILS>')) {
+	if (strpos($template_output, '<DETAILS>') !== false) {
 		$toutput = str_replace('<DETAILS>', $body_txt, $template_output) . PHP_EOL;
 	} else {
 		$toutput = $body_txt;
 	}
-
-	monitorDebug("Reboot template_output length: " . strlen($template_output) . ", toutput length: " . strlen($toutput));
 
 	if (read_config_option('monitor_reboot_notify') != 'on') {
 		return;

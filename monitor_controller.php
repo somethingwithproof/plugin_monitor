@@ -107,7 +107,9 @@ function drawPage(): void {
 
 	// Default with permissions = default_by_permission
 	// Tree  = group_by_tree
-	$function = 'render' . ucfirst(get_request_var('grouping'));
+	$allowed_groupings = ['default', 'tree', 'site', 'template'];
+	$grouping          = in_array(get_request_var('grouping'), $allowed_groupings, true) ? get_request_var('grouping') : 'default';
+	$function          = 'render' . ucfirst($grouping);
 
 	if (function_exists($function) && get_request_var('view') != 'list') {
 		if (get_request_var('grouping') == 'default' || get_request_var('grouping') == 'site') {
