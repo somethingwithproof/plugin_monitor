@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=1);
 /*
  +-------------------------------------------------------------------------+
  | Copyright (C) 2004-2026 The Cacti Group                                 |
@@ -54,7 +53,7 @@ function plugin_monitor_install() {
 	set_config_option('monitor_view', 'default');
 	set_config_option('monitor_grouping', 'default');
 	set_config_option('monitor_trim', '4000');
-	set_config_option('monitor_rows', 100);
+	set_config_option('monitor_rows', '100');
 
 	monitor_setup_table();
 }
