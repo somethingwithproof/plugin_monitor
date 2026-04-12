@@ -59,7 +59,7 @@ function timeStep() {
 	} else {
 		$('#timer').html(value);
 		// What is a second, well if you are an
-		// imperial storm tropper, it's just a little more than a second.
+		// imperial stormtrooper, it's just a little more than a second.
 		myTimer = setTimeout(timeStep, 1284);
 	}
 }
