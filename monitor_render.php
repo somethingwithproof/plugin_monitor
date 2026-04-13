@@ -36,10 +36,11 @@ function renderDefault(): string
 
     $result = '';
 
-    $sql_where = '';
-    $sql_join  = '';
-    $sql_limit = '';
-    $sql_order = 'ORDER BY description';
+    $sql_where  = '';
+    $sql_join   = '';
+    $sql_limit  = '';
+    $sql_order  = 'ORDER BY description';
+    $sql_params = [];
 
     $rows = get_request_var('rows');
 
@@ -55,7 +56,7 @@ function renderDefault(): string
         $sql_order = get_order_string();
     }
 
-    renderWhereJoin($sql_where, $sql_join);
+    renderWhereJoin($sql_where, $sql_join, $sql_params);
 
     $poller_interval = read_config_option('poller_interval');
 
@@ -63,8 +64,8 @@ function renderDefault(): string
 
     $hosts_sql = ("SELECT DISTINCT h.*, IFNULL(s.name,' " . __('Non-Site Device', 'monitor') . " ') AS site_name,
         CAST(IF(availability_method = 0, '0',
-            IF(status_event_count > 0 AND status IN (1, 2), status_event_count*$poller_interval,
-            IF(UNIX_TIMESTAMP(status_rec_date) < 943916400 AND status IN (0, 3), total_polls*$poller_interval,
+            IF(status_event_count > 0 AND status IN (1, 2), status_event_count * ?,
+            IF(UNIX_TIMESTAMP(status_rec_date) < 943916400 AND status IN (0, 3), total_polls * ?,
             IF(UNIX_TIMESTAMP(status_rec_date) > 943916400, UNIX_TIMESTAMP() - UNIX_TIMESTAMP(status_rec_date),
             IF(snmp_sysUptimeInstance>0 AND snmp_version > 0, snmp_sysUptimeInstance/100, UNIX_TIMESTAMP()
         ))))) AS unsigned) AS instate
@@ -76,24 +77,27 @@ function renderDefault(): string
 		$sql_order
 		$sql_limit");
 
-    $hosts = db_fetch_assoc($hosts_sql);
+    $sql_params[] = $poller_interval;
+    $sql_params[] = $poller_interval;
 
-    $total_rows = db_fetch_cell("SELECT COUNT(DISTINCT h.id)
+    $hosts = db_fetch_assoc_prepared($hosts_sql, $sql_params);
+
+    $total_rows = db_fetch_cell_prepared("SELECT COUNT(DISTINCT h.id)
         FROM host AS h
         LEFT JOIN sites AS s
         ON h.site_id = s.id
         $sql_join
-        $sql_where");
+        $sql_where", $sql_params);
 
     if (cacti_sizeof($hosts)) {
         // Determine the correct width of the cell
         $maxlen = 10;
 
         if (get_request_var('view') == 'default') {
-            $maxlen = db_fetch_cell("SELECT MAX(LENGTH(description))
+            $maxlen = db_fetch_cell_prepared("SELECT MAX(LENGTH(description))
 				FROM host AS h
 				$sql_join
-				$sql_where");
+				$sql_where", $sql_params);
         }
 
         $maxlen = getMonitorTrimLength($maxlen);
@@ -137,9 +141,10 @@ function renderSite(): string
 
     $result = '';
 
-    $sql_where = '';
-    $sql_join  = '';
-    $sql_limit = '';
+    $sql_where  = '';
+    $sql_join   = '';
+    $sql_limit  = '';
+    $sql_params = [];
 
     $rows = get_request_var('rows');
 
@@ -151,7 +156,7 @@ function renderSite(): string
         $rows = read_config_option('num_rows_table');
     }
 
-    renderWhereJoin($sql_where, $sql_join);
+    renderWhereJoin($sql_where, $sql_join, $sql_params);
 
     $sql_limit = ' LIMIT ' . ($rows * (get_request_var('page') - 1)) . ',' . $rows;
 
@@ -164,7 +169,7 @@ function renderSite(): string
 		ORDER BY site_name, description
 		$sql_limit");
 
-    $hosts = db_fetch_assoc($hosts_sql);
+    $hosts = db_fetch_assoc_prepared($hosts_sql, $sql_params);
 
     $ctemp = -1;
     $ptemp = -1;
@@ -197,10 +202,10 @@ function renderSite(): string
         // Determine the correct width of the cell
         $maxlen = 10;
 
-        if (get_request_var('view') == 'default') {
-            $maxlen = db_fetch_cell('SELECT MAX(LENGTH(description))
+        if (get_request_var('view') == 'default' && cacti_sizeof($host_ids)) {
+            $maxlen = db_fetch_cell_prepared('SELECT MAX(LENGTH(description))
 				FROM host AS h
-				WHERE id IN (' . implode(',', $host_ids) . ')');
+				WHERE id IN (' . implode(',', array_fill(0, cacti_sizeof($host_ids), '?')) . ')', $host_ids);
         }
         $maxlen = getMonitorTrimLength($maxlen);
 
@@ -262,9 +267,10 @@ function renderTemplate(): string
 
     $result = '';
 
-    $sql_where = '';
-    $sql_join  = '';
-    $sql_limit = '';
+    $sql_where  = '';
+    $sql_join   = '';
+    $sql_limit  = '';
+    $sql_params = [];
 
     $rows = get_request_var('rows');
 
@@ -276,12 +282,13 @@ function renderTemplate(): string
         $rows = read_config_option('num_rows_table');
     }
 
-    renderWhereJoin($sql_where, $sql_join);
+    renderWhereJoin($sql_where, $sql_join, $sql_params);
 
     $sql_limit = ' LIMIT ' . ($rows * (get_request_var('page') - 1)) . ',' . $rows;
 
     if (get_request_var('template') > 0) {
-        $sql_where .= ($sql_where == '' ? '' : 'AND ') . 'ht.id = ' . get_request_var('template');
+        $sql_where .= ($sql_where == '' ? '' : 'AND ') . 'ht.id = ?';
+        $sql_params[] = get_request_var('template');
     }
 
     $sql_template  = 'INNER JOIN host_template AS ht ON h.host_template_id=ht.id ';
@@ -291,14 +298,14 @@ function renderTemplate(): string
         $sql_template = 'LEFT JOIN host_template AS ht ON h.host_template_id=ht.id ';
     }
 
-    $hosts = db_fetch_assoc("SELECT DISTINCT
+    $hosts = db_fetch_assoc_prepared("SELECT DISTINCT
 		h.*, ht.name AS host_template_name
 		FROM host AS h
 		$sql_template
 		$sql_join
 		$sql_where
 		ORDER BY ht.name, h.description
-		$sql_limit");
+		$sql_limit", $sql_params);
 
     $ctemp = -1;
     $ptemp = -1;
@@ -331,10 +338,10 @@ function renderTemplate(): string
         // Determine the correct width of the cell
         $maxlen = 10;
 
-        if (get_request_var('view') == 'default') {
-            $maxlen = db_fetch_cell('SELECT MAX(LENGTH(description))
+        if (get_request_var('view') == 'default' && cacti_sizeof($host_ids)) {
+            $maxlen = db_fetch_cell_prepared('SELECT MAX(LENGTH(description))
 				FROM host AS h
-				WHERE id IN (' . implode(',', $host_ids) . ')');
+				WHERE id IN (' . implode(',', array_fill(0, cacti_sizeof($host_ids), '?')) . ')', $host_ids);
         }
         $maxlen = getMonitorTrimLength($maxlen);
 
